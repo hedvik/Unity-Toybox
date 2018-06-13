@@ -45,10 +45,12 @@ public class ObjectPoolSystem : ComponentSystem
     {
         spawnTimer += Time.deltaTime;
 
-        if (spawnTimer >= 0.1f)
+
+
+        if (spawnTimer >= 0.05f)
         {
-            SpawnFromPool("cube", new Vector3(0, 5, 0), Quaternion.identity);
-            spawnTimer -= 0.1f;
+            SpawnFromPool("cube", new Vector3(-20, 5, 0), Quaternion.identity);
+            spawnTimer -= 0.05f;
         }
     }
 
@@ -62,9 +64,12 @@ public class ObjectPoolSystem : ComponentSystem
                 return null;
             }
 
+            // Still kinda working on gameObjects rather than entities here. Not sure how to mainly do entity work yet. 
             var objectToSpawn = entity.objectPool.poolDictionary[tag].Dequeue();
-            objectToSpawn.GetComponent<Rigidbody>().velocity = Vector3.zero;
-            objectToSpawn.SetActive(true);
+
+            // Probably want to do some null checking
+            objectToSpawn.GetComponent<ObjectStateComponent>().respawned = true;
+            objectToSpawn.gameObject.SetActive(true);
             objectToSpawn.transform.position = position;
             objectToSpawn.transform.rotation = rotation;
             entity.objectPool.poolDictionary[tag].Enqueue(objectToSpawn);

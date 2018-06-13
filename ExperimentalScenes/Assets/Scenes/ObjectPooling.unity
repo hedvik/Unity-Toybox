@@ -222,7 +222,7 @@ MonoBehaviour:
   pools:
   - tag: cube
     prefab: {fileID: 1051830158473672, guid: 005c42130d670744b975625d6902de97, type: 2}
-    size: 50
+    size: 500
 --- !u!114 &1844974998
 MonoBehaviour:
   m_ObjectHideFlags: 0
