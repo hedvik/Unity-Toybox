@@ -9,7 +9,7 @@ public class ImageParticlePlacer : MonoBehaviour {
 
     private ParticleSystem particleSys;
 
-    private void Start()
+    private void Awake()
     {
         particleSys = GetComponent<ParticleSystem>();
         var sys = particleSys.main;
