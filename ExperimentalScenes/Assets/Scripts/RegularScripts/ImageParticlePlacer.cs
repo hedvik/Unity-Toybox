@@ -33,7 +33,7 @@ public class ImageParticlePlacer : MonoBehaviour {
             if (colors[i].a > 0)
             {
                 var emitParams = new ParticleSystem.EmitParams();
-                emitParams.position = new Vector3(x * stepSize, y * stepSize, 0);
+                emitParams.position = new Vector3(startPos.x + (x * stepSize), startPos.y + (y * stepSize), 0);
                 emitParams.velocity = new Vector3(0, 0, 0);
                 emitParams.startColor = colors[i];
                 particleSys.Emit(emitParams, 1);
