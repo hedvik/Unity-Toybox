@@ -140,7 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8cf0d6f3cd6dba4fa02faea0269cff7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  image: {fileID: 2800000, guid: a3871da837ae4684987876c8b5e0d128, type: 3}
+  image: {fileID: 2800000, guid: cd9b157a67e63d64ea045183c9ae8adb, type: 3}
   particlePlacer: {fileID: 1457228356}
 --- !u!4 &109983561
 Transform:
@@ -402,6 +402,61 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &1343551155
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1343551157}
+  - component: {fileID: 1343551156}
+  - component: {fileID: 1343551158}
+  m_Layer: 0
+  m_Name: SphereCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!135 &1343551156
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1343551155}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 32.37
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &1343551157
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1343551155}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 89.8, y: 14.7, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1343551158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1343551155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c017edd972e9544298c7004c9254941, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  destination: {x: 18, y: 14.7, z: 0}
+  speed: 0.25
 --- !u!1 &1457228355
 GameObject:
   m_ObjectHideFlags: 0
@@ -411,8 +466,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1457228357}
   - component: {fileID: 1457228356}
-  - component: {fileID: 1457228359}
+  - component: {fileID: 1457228360}
   - component: {fileID: 1457228358}
+  - component: {fileID: 1457228359}
   m_Layer: 0
   m_Name: ParticlePlacer
   m_TagString: Untagged
@@ -431,9 +487,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2552742ffe11374c853650078909e2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stepSize: 0.1
+  stepSize: 0.2
   startPos: {x: 0, y: 0}
-  particleSize: 0.1
+  particleSize: 0.2
 --- !u!4 &1457228357
 Transform:
   m_ObjectHideFlags: 0
@@ -2531,7 +2587,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
   ForceModule:
-    enabled: 1
+    enabled: 0
     x:
       serializedVersion: 2
       minMaxState: 2
@@ -4087,16 +4143,16 @@ ParticleSystem:
     collidesWithDynamic: 1
     interiorCollisions: 0
   TriggerModule:
-    enabled: 0
-    collisionShape0: {fileID: 0}
+    enabled: 1
+    collisionShape0: {fileID: 1343551157}
     collisionShape1: {fileID: 0}
     collisionShape2: {fileID: 0}
     collisionShape3: {fileID: 0}
     collisionShape4: {fileID: 0}
     collisionShape5: {fileID: 0}
-    inside: 1
+    inside: 0
     outside: 0
-    enter: 0
+    enter: 2
     exit: 0
     radiusScale: 1
   SubModule:
@@ -5034,6 +5090,18 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
+--- !u!114 &1457228360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1457228355}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3500611a19d9fcb46b746bacebaaa796, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  velocityStrength: 50
 --- !u!1 &1763802722
 GameObject:
   m_ObjectHideFlags: 0
