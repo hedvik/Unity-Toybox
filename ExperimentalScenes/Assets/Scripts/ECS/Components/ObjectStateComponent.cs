@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectStateComponent : MonoBehaviour {
+public class ObjectStateComponent : MonoBehaviour
+{
     [HideInInspector]
     public bool respawned = false;
 }

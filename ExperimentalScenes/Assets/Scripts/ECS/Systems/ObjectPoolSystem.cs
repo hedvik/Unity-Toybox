@@ -17,8 +17,6 @@ public class ObjectPoolSystem : ComponentSystem
     // Spawns the prefabs for each pool and sets then to inactive. 
     protected override void OnStartRunning()
     {
-        base.OnStartRunning();
-
         foreach (var entity in GetEntities<SystemComponents>())
         {
             entity.objectPool.poolDictionary = new Dictionary<string, Queue<GameObject>>();
@@ -26,10 +24,19 @@ public class ObjectPoolSystem : ComponentSystem
             foreach(var pool in entity.objectPool.pools)
             {
                 var objectPoolQueue = new Queue<GameObject>();
+                GameObject obj;
 
                 for(int i = 0; i < pool.size; i++)
                 {
-                    var obj = GameObject.Instantiate(pool.prefab);
+                    if (pool.parent != null)
+                    {
+                        obj = GameObject.Instantiate(pool.prefab, pool.parent);
+                    }
+                    else
+                    {
+                        obj = GameObject.Instantiate(pool.prefab);
+                    }
+
                     obj.SetActive(false);
                     objectPoolQueue.Enqueue(obj);
                 }
@@ -45,12 +52,10 @@ public class ObjectPoolSystem : ComponentSystem
     {
         spawnTimer += Time.deltaTime;
 
-
-
-        if (spawnTimer >= 0.05f)
+        if (spawnTimer >= 0.02f)
         {
             SpawnFromPool("cube", new Vector3(-20, 5, 0), Quaternion.identity);
-            spawnTimer -= 0.05f;
+            spawnTimer -= 0.02f;
         }
     }
 
