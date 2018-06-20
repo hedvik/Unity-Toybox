@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // Based on https://connect.unity.com/p/part-3-unity-ecs-operating-on-entities
 // This is basically where everything starts and is set up
@@ -11,26 +12,34 @@ public class Bootstrapper
 {
     static int startEntityCount = 10000;
 
-    // Archetypes are used to batch together entities with the same ComponentType
+    // Archetypes are used to batch together entities with the same ComponentType's
     public static EntityArchetype floatyCubeArchetype;
-    public static MeshInstanceRenderer cubeLook;
 
-    // Allows us to avoid MonoBehaviour usage to instantiate entities
+    // MeshInstanceRenderer's are used to determine the "look" of a entity if we want to render it. 
+    // This is a good candidate for GPU instancing in this case which requires the material to have instancing enabled. 
+    public static MeshInstanceRenderer cubeLookBottom;
+    public static MeshInstanceRenderer cubeLookTop;
+
+    // Allows us to avoid MonoBehaviour usage to set things up
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void InitializeBeforeScene()
     {
         var entityManager = World.Active.GetOrCreateManager<EntityManager>(); 
 
-        // We need archetypes before we can create entities
+        // We want archetypes before we create entities
         CreateArchetypes(entityManager); 
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     public static void IntitializeAfterScene()
     {
-        var entityManager = World.Active.GetOrCreateManager<EntityManager>();
-        cubeLook = GetLookFromPrototype("EntityInstanceRenderer");
-        CreateEntities(entityManager);
+        if (SceneManager.GetActiveScene().name.Contains("Pure"))
+        {
+            var entityManager = World.Active.GetOrCreateManager<EntityManager>();
+            cubeLookBottom = GetLookFromPrototype("EntityInstanceRenderer");
+            cubeLookTop = GetLookFromPrototype("EntityInstanceRenderer2");
+            CreateEntities(entityManager);
+        }
     }
 
     private static void CreateArchetypes(EntityManager entityManager)
@@ -49,39 +58,64 @@ public class Bootstrapper
 
     private static void CreateEntities(EntityManager entityManager)
     {
+        CreateAndSpawnEntities(
+            entityManager, 
+            startEntityCount / 2, 
+            cubeLookBottom, 
+            new float3(0, 0, 0), 
+            new float3(0, 1, 0)
+            );
+
+        CreateAndSpawnEntities(
+            entityManager,
+            startEntityCount / 2,
+            cubeLookTop,
+            new float3(0, 100, 0),
+            new float3(0, -1, 0)
+            );
+
+        // After this, the entities are spawned in the world and ready for processing. 
+    }
+
+    private static void CreateAndSpawnEntities(EntityManager entityManager, int count, MeshInstanceRenderer look, float3 startPos, float3 floatDirection)
+    {
         // if you spawn more entities, it's more performant to do it with NativeArray
         // if you want to spawn just one entity, do:
         // var entity = em.CreateEntity(EntityArchetype);
-        var entities = new NativeArray<Entity>(startEntityCount, Allocator.Temp);
+        var entities = new NativeArray<Entity>(count, Allocator.Temp);
 
         // Spawns entities and attaches all components from the floatyCubes archetype
         entityManager.CreateEntity(floatyCubeArchetype, entities);
 
         // Setting up start values for the components
-        for (int i = 0; i < startEntityCount; i++)
+        for (int i = 0; i < count; i++)
         {
             var cubeFloatComponent = new CubeFloaterComponent();
             cubeFloatComponent.floatSpeed = Random.Range(1.0f, 5.0f);
-            cubeFloatComponent.floatDirection = new float3(Random.Range(-1.0f, 1.0f), 1, Random.Range(-1.0f, 1.0f));
+            cubeFloatComponent.floatDirection = new float3(
+                floatDirection.x == 0 ? Random.Range(-1.0f, 1.0f) : floatDirection.x,
+                floatDirection.y == 0 ? Random.Range(-1.0f, 1.0f) : floatDirection.y,
+                floatDirection.z == 0 ? Random.Range(-1.0f, 1.0f) : floatDirection.z
+                );
 
             var cubeRotatorComponent = new CubeRotatorComponent();
             cubeRotatorComponent.rotationSpeed = cubeFloatComponent.floatSpeed;
             cubeRotatorComponent.direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
 
-            entityManager.SetComponentData(entities[i], new Position() { Value = new float3(0, 0, 0) });
+            entityManager.SetComponentData(entities[i], new Position() { Value = startPos });
             entityManager.SetComponentData(entities[i], new Rotation() { Value = new quaternion() });
             entityManager.SetComponentData(entities[i], cubeFloatComponent);
             entityManager.SetComponentData(entities[i], cubeRotatorComponent);
 
             // This shared component decides the rendered look of the entity
-            entityManager.AddSharedComponentData(entities[i], cubeLook);
+            entityManager.AddSharedComponentData(entities[i], look);
         }
 
         // All NativeArray's need to be disposed of manually. This will not destroy any entities, just state that we will not be using the array anymore. 
-        entities.Dispose(); 
-        // As of now, this should mean that the entities are spawned in the world and ready to be injected into our systems. 
+        entities.Dispose();
     }
 
+    // One common approach to work between the scene view and Pure ECS is to create prototype GameObject's in the scene which we process here before removing them. 
     private static MeshInstanceRenderer GetLookFromPrototype(string protoName)
     {
         var prototype = GameObject.Find(protoName);

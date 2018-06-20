@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+// Standard ComponentSystem example with Pure ECS
 public class CubeFloaterSystem : ComponentSystem
 {
     public struct SystemData
