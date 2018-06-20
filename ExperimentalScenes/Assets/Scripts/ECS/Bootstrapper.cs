@@ -36,12 +36,15 @@ public class Bootstrapper
     private static void CreateArchetypes(EntityManager entityManager)
     {
         // ComponentType.Create<> is slightly more efficient than using typeof()
-        // em.CreateArchetype(typeof(Position), typeof(Heading), typeof(Health), typeof(MoveSpeed));
+        // em.CreateArchetype(typeof(foo), typeof(bar), typeof(cake), typeof(cookie));
+        // Note: A TransformMatrix is MANDATORY to actually render things properly
         var position = ComponentType.Create<Position>();
-        var heading = ComponentType.Create<Heading>();
-        var moveSpeed = ComponentType.Create<MoveSpeed>();
+        var rotation = ComponentType.Create<Rotation>();
+        var transformMatrix = ComponentType.Create<TransformMatrix>();
+        var cubeFloater = ComponentType.Create<CubeFloaterComponent>();
+        var cubeRotator = ComponentType.Create<CubeRotatorComponent>();
 
-        floatyCubeArchetype = entityManager.CreateArchetype(position, heading, moveSpeed);
+        floatyCubeArchetype = entityManager.CreateArchetype(position, transformMatrix, rotation, cubeFloater, cubeRotator);
     }
 
     private static void CreateEntities(EntityManager entityManager)
@@ -57,10 +60,18 @@ public class Bootstrapper
         // Setting up start values for the components
         for (int i = 0; i < startEntityCount; i++)
         {
-            // Heading is a built-in Unity component that needs to be set as the default is (0,0,0) which we cannot look towards(apparently).
-            entityManager.SetComponentData(entities[i], new Heading() { Value = new float3(0, 1, 0) });
+            var cubeFloatComponent = new CubeFloaterComponent();
+            cubeFloatComponent.floatSpeed = Random.Range(1.0f, 5.0f);
+            cubeFloatComponent.floatDirection = new float3(Random.Range(-1.0f, 1.0f), 1, Random.Range(-1.0f, 1.0f));
+
+            var cubeRotatorComponent = new CubeRotatorComponent();
+            cubeRotatorComponent.rotationSpeed = cubeFloatComponent.floatSpeed;
+            cubeRotatorComponent.direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
+
             entityManager.SetComponentData(entities[i], new Position() { Value = new float3(0, 0, 0) });
-            entityManager.SetComponentData(entities[i], new MoveSpeed() { speed = 10.0f });
+            entityManager.SetComponentData(entities[i], new Rotation() { Value = new quaternion() });
+            entityManager.SetComponentData(entities[i], cubeFloatComponent);
+            entityManager.SetComponentData(entities[i], cubeRotatorComponent);
 
             // This shared component decides the rendered look of the entity
             entityManager.AddSharedComponentData(entities[i], cubeLook);
