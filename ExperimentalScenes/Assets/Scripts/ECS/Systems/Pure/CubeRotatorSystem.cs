@@ -21,10 +21,6 @@ public class CubeRotatorSystem : JobComponentSystem
         public ComponentDataArray<CubeRotatorComponent> cubeFloaterComponent;
     }
 
-    // Injects all entities with the specified ComponentDataArray's we specified in SystemData
-    [Inject]
-    private SystemData cubes;
-
     // Parallel ForLoop example
     [BurstCompile]
     struct CubeRotatorForLoopJob : IJobParallelFor
@@ -56,6 +52,10 @@ public class CubeRotatorSystem : JobComponentSystem
             rotation.Value = math.mul(math.normalize(rotation.Value), math.axisAngle(cubeFloaterComponent.direction, cubeFloaterComponent.rotationSpeed * dt));
         }
     }
+
+    // Injects all entities with the specified ComponentDataArray's we specified in SystemData
+    [Inject]
+    private SystemData cubes;
 
     // Job Scheduling is handled in OnUpdate here
     protected override JobHandle OnUpdate(JobHandle inputDeps)

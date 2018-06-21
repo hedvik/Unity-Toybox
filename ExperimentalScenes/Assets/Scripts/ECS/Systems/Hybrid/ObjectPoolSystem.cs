@@ -44,8 +44,6 @@ public class ObjectPoolSystem : ComponentSystem
                 entity.objectPool.poolDictionary.Add(pool.tag, objectPoolQueue);
             }
         }
-
-        Debug.Log("Object Pool Initialized!");
     }
 
     protected override void OnUpdate()

@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 // Based on https://connect.unity.com/p/part-3-unity-ecs-operating-on-entities
 // This is basically where everything starts and is set up
-public class Bootstrapper
+public class BootstrapperLargeEntityCount
 {
     static int startEntityCount = 10000;
 
@@ -33,7 +33,7 @@ public class Bootstrapper
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     public static void IntitializeAfterScene()
     {
-        if (SceneManager.GetActiveScene().name.Contains("Pure"))
+        if (SceneManager.GetActiveScene().name.Contains("PureLargeEntityCount"))
         {
             var entityManager = World.Active.GetOrCreateManager<EntityManager>();
             cubeLookBottom = GetLookFromPrototype("EntityInstanceRenderer");
