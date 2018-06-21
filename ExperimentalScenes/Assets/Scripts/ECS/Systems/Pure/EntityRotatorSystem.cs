@@ -9,7 +9,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 // Example of using the Burst Compiler and Job System with ECS
-public class CubeRotatorSystem : JobComponentSystem
+public class EntityRotatorSystem : JobComponentSystem
 {
     // Component Group
     public struct SystemData
@@ -18,44 +18,44 @@ public class CubeRotatorSystem : JobComponentSystem
         public ComponentDataArray<Rotation> rotations;
 
         [ReadOnly]
-        public ComponentDataArray<CubeRotatorComponent> cubeFloaterComponent;
+        public ComponentDataArray<RotatorComponent> cubeFloaterComponent;
     }
 
     // Parallel ForLoop example
     [BurstCompile]
-    struct CubeRotatorForLoopJob : IJobParallelFor
+    struct RotatorForLoopJob : IJobParallelFor
     {
         public float dt;
         public ComponentDataArray<Rotation> rotations;
 
         [ReadOnly]
-        public ComponentDataArray<CubeRotatorComponent> cubeFloaterComponent;
+        public ComponentDataArray<RotatorComponent> rotatorComponent;
 
         public void Execute(int i)
         {
             rotations[i] = new Rotation
             {
-                Value = math.mul(math.normalize(rotations[i].Value), math.axisAngle(cubeFloaterComponent[i].direction, cubeFloaterComponent[i].rotationSpeed * dt))
+                Value = math.mul(math.normalize(rotations[i].Value), math.axisAngle(rotatorComponent[i].direction, rotatorComponent[i].rotationSpeed * dt))
             };
         }
     }
 
-    // More or less same job as above, but on specific components which could be seen as a bit cleaner in this case.
-    // This approach does not require data injection so we do not need the cubes struct here. 
+    // More or less same job as above, but with specified components which could be seen as a bit cleaner in this case.
+    // This approach does not require data injection so we do not need cubes[] here. 
     [BurstCompile]
-    struct CubeRotatorComponentJob : IJobProcessComponentData<Rotation, CubeRotatorComponent>
+    struct RotatorJob : IJobProcessComponentData<Rotation, RotatorComponent>
     {
         public float dt;
 
-        public void Execute(ref Rotation rotation, [ReadOnly]ref CubeRotatorComponent cubeFloaterComponent)
+        public void Execute(ref Rotation rotation, [ReadOnly]ref RotatorComponent rotatorComponent)
         {
-            rotation.Value = math.mul(math.normalize(rotation.Value), math.axisAngle(cubeFloaterComponent.direction, cubeFloaterComponent.rotationSpeed * dt));
+            rotation.Value = math.mul(math.normalize(rotation.Value), math.axisAngle(rotatorComponent.direction, rotatorComponent.rotationSpeed * dt));
         }
     }
 
     // Injects all entities with the specified ComponentDataArray's we specified in SystemData
     [Inject]
-    private SystemData cubes;
+    private SystemData filteredEntities;
 
     // Job Scheduling is handled in OnUpdate here
     protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -71,7 +71,7 @@ public class CubeRotatorSystem : JobComponentSystem
         //return rotatorJob.Schedule(cubes.Length, 64, inputDeps);
 
         // IJobProcessComponentData example
-        var rotatorJob = new CubeRotatorComponentJob() { dt = Time.deltaTime };
+        var rotatorJob = new RotatorJob() { dt = Time.deltaTime };
         return rotatorJob.Schedule(this, 64, inputDeps);
     }
 }

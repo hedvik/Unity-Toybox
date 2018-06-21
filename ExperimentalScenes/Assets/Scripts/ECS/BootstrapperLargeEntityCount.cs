@@ -50,10 +50,10 @@ public class BootstrapperLargeEntityCount
         var position = ComponentType.Create<Position>();
         var rotation = ComponentType.Create<Rotation>();
         var transformMatrix = ComponentType.Create<TransformMatrix>();
-        var cubeFloater = ComponentType.Create<CubeFloaterComponent>();
-        var cubeRotator = ComponentType.Create<CubeRotatorComponent>();
+        var floater = ComponentType.Create<FloaterComponent>();
+        var rotator = ComponentType.Create<RotatorComponent>();
 
-        floatyCubeArchetype = entityManager.CreateArchetype(position, transformMatrix, rotation, cubeFloater, cubeRotator);
+        floatyCubeArchetype = entityManager.CreateArchetype(position, transformMatrix, rotation, floater, rotator);
     }
 
     private static void CreateEntities(EntityManager entityManager)
@@ -90,22 +90,22 @@ public class BootstrapperLargeEntityCount
         // Setting up start values for the components
         for (int i = 0; i < count; i++)
         {
-            var cubeFloatComponent = new CubeFloaterComponent();
-            cubeFloatComponent.floatSpeed = Random.Range(1.0f, 5.0f);
-            cubeFloatComponent.floatDirection = new float3(
+            var floaterComponent = new FloaterComponent();
+            floaterComponent.floatSpeed = Random.Range(1.0f, 5.0f);
+            floaterComponent.floatDirection = new float3(
                 floatDirection.x == 0 ? Random.Range(-1.0f, 1.0f) : floatDirection.x,
                 floatDirection.y == 0 ? Random.Range(-1.0f, 1.0f) : floatDirection.y,
                 floatDirection.z == 0 ? Random.Range(-1.0f, 1.0f) : floatDirection.z
                 );
 
-            var cubeRotatorComponent = new CubeRotatorComponent();
-            cubeRotatorComponent.rotationSpeed = cubeFloatComponent.floatSpeed;
-            cubeRotatorComponent.direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
+            var rotatorComponent = new RotatorComponent();
+            rotatorComponent.rotationSpeed = floaterComponent.floatSpeed;
+            rotatorComponent.direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
 
             entityManager.SetComponentData(entities[i], new Position() { Value = startPos });
             entityManager.SetComponentData(entities[i], new Rotation() { Value = new quaternion() });
-            entityManager.SetComponentData(entities[i], cubeFloatComponent);
-            entityManager.SetComponentData(entities[i], cubeRotatorComponent);
+            entityManager.SetComponentData(entities[i], rotatorComponent);
+            entityManager.SetComponentData(entities[i], floaterComponent);
 
             // This shared component decides the rendered look of the entity
             entityManager.AddSharedComponentData(entities[i], look);
@@ -116,6 +116,7 @@ public class BootstrapperLargeEntityCount
     }
 
     // One common approach to work between the scene view and Pure ECS is to create prototype GameObject's in the scene which we process here before removing them. 
+    // Note: Prefabs with GameObjectEntity can also be instantiated by the EntityManager which is fairly convenient. 
     private static MeshInstanceRenderer GetLookFromPrototype(string protoName)
     {
         var prototype = GameObject.Find(protoName);

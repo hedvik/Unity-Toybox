@@ -62,6 +62,6 @@ public class PixelCubePlacer : JobComponentSystem
             height = pixelCubes.imageColours[0].height,
             commandBuffer = endFrameBarrier.CreateCommandBuffer()
         };
-        return positionSetterJob.Schedule(pixelCubes.Length, 1, inputDeps);
+        return positionSetterJob.Schedule(pixelCubes.Length, 64, inputDeps);
     }
 }

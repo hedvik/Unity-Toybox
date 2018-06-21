@@ -7,22 +7,19 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-public struct CubeFloaterComponent : IComponentData
+public struct FloaterComponent : IComponentData
 {
     public float3 floatDirection;
     public float floatSpeed;
 }
 
-public struct CubeRotatorComponent : IComponentData
+public struct RotatorComponent : IComponentData
 {
     public float3 direction;
     public float rotationSpeed;
 }
 
-public struct InitializePositionTag : IComponentData
-{
-
-}
+public struct InitializePositionTag : IComponentData { }
 
 public struct ImageColours : ISharedComponentData
 {
