@@ -27,3 +27,35 @@ public struct ImageColours : ISharedComponentData
     public int width;
     public int height;
 }
+
+[Serializable]
+public struct Particle : IComponentData
+{
+    public float mass;
+    [HideInInspector] public float inverseMass;
+    [HideInInspector] public float3 force;
+    [HideInInspector] public float3 acceleration;
+    [HideInInspector] public float3 velocity;
+
+    public float lifeTime;
+    public float3 gravity;
+}
+
+[Serializable]
+public struct ParticleEmitter : IComponentData
+{
+    public float emissionRate;
+    [HideInInspector] public float emissionTimer;
+
+    // Pyramid emission 
+    public uint particlesPerEmission;
+    public float3 emitterPosition;
+    public float3 emissionDirection;
+    public float rangeX;
+    public float rangeY;
+    public float rangeZ;
+    public float initialSpeed;
+
+    // TODO: Unused for now. The problem is: how do we handle particle pooling with ECS?
+    public int maxParticles;
+}

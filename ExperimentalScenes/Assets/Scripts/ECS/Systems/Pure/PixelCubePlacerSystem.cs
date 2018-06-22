@@ -28,13 +28,13 @@ public class PixelCubePlacer : JobComponentSystem
     [BurstCompile]
     struct PixelCubePlacerJob : IJobParallelFor
     {
-        [ReadOnly]public int width;
-        [ReadOnly]public int height;
-        [ReadOnly]public EntityArray entities;
+        [ReadOnly] public int width;
+        [ReadOnly] public int height;
+        [ReadOnly] public EntityArray entities;
         
         // A regular commandBuffer will not work in this case so we use a concurrent one instead
-        [WriteOnly]public EntityCommandBuffer.Concurrent commandBuffer;
-        [WriteOnly]public ComponentDataArray<Position> positions;
+        [WriteOnly] public EntityCommandBuffer.Concurrent commandBuffer;
+        [WriteOnly] public ComponentDataArray<Position> positions;
 
         public void Execute(int i)
         {
@@ -62,6 +62,9 @@ public class PixelCubePlacer : JobComponentSystem
             height = pixelCubes.imageColours[0].height,
             commandBuffer = endFrameBarrier.CreateCommandBuffer()
         };
-        return positionSetterJob.Schedule(pixelCubes.Length, 64, inputDeps);
+        
+        var handle = positionSetterJob.Schedule(pixelCubes.Length, 64, inputDeps);
+        handle.Complete();
+        return handle;
     }
 }

@@ -48,7 +48,7 @@ public class EntityFloaterSystem : JobComponentSystem
     [BurstCompile]
     struct EntityFloaterJob : IJobProcessComponentData<Position, FloaterComponent>
     {
-        public float dt;
+        [ReadOnly] public float dt;
 
         public void Execute([WriteOnly]ref Position position, [ReadOnly]ref FloaterComponent floater)
         {

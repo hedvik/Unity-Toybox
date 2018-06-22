@@ -25,7 +25,7 @@ public class EntityRotatorSystem : JobComponentSystem
     [BurstCompile]
     struct RotatorForLoopJob : IJobParallelFor
     {
-        public float dt;
+        [ReadOnly] public float dt;
         public ComponentDataArray<Rotation> rotations;
 
         [ReadOnly]
@@ -45,7 +45,7 @@ public class EntityRotatorSystem : JobComponentSystem
     [BurstCompile]
     struct RotatorJob : IJobProcessComponentData<Rotation, RotatorComponent>
     {
-        public float dt;
+        [ReadOnly] public float dt;
 
         public void Execute(ref Rotation rotation, [ReadOnly]ref RotatorComponent rotatorComponent)
         {
