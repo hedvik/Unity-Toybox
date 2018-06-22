@@ -103,7 +103,7 @@ public class BootstrapperLargeEntityCount
             rotatorComponent.direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
 
             entityManager.SetComponentData(entities[i], new Position() { Value = startPos });
-            entityManager.SetComponentData(entities[i], new Rotation() { Value = new quaternion() });
+            entityManager.SetComponentData(entities[i], new Rotation() { Value = quaternion.identity });
             entityManager.SetComponentData(entities[i], rotatorComponent);
             entityManager.SetComponentData(entities[i], floaterComponent);
 

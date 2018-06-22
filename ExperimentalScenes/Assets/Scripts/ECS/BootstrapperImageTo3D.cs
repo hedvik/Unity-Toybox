@@ -73,7 +73,7 @@ public class BootstrapperImageTo3D
         for (int i = 0; i < imageSize; i++)
         {
             entityManager.SetComponentData(entities[i], new Position() { Value = new float3(0, 0, 0) });
-            entityManager.SetComponentData(entities[i], new Rotation() { Value = new quaternion() });
+            entityManager.SetComponentData(entities[i], new Rotation() { Value = quaternion.identity });
 
             // This shared component decides the rendered look of the entity
             entityManager.AddSharedComponentData(entities[i], pixelCubeLook);

@@ -216,7 +216,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SerializedData:
-    emissionRate: 0.05
+    emissionRate: 0.01
     emissionTimer: 0
     particlesPerEmission: 50
     emitterPosition:

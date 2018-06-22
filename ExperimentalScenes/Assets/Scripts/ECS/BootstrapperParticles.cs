@@ -19,8 +19,8 @@ public class BootstrapperParticles
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void InitializeBeforeScene()
     {
-        var entityManager = World.Active.GetOrCreateManager<EntityManager>(); 
-        CreateArchetypes(entityManager); 
+        var entityManager = World.Active.GetOrCreateManager<EntityManager>();
+        CreateArchetypes(entityManager);
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]

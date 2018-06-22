@@ -24,7 +24,7 @@ public class ParticlePhysicsSystem : JobComponentSystem
             position.Value += particle.velocity * fdt;
             particle.force = new float3(0, 0, 0);
 
-            // HACK: Budget collision and drag ;)
+            // HACK: Budget collision and velocity dissipation on collision ;)
             if(position.Value.y < 20)
             {
                 particle.velocity.y = -particle.velocity.y * 0.8f;
