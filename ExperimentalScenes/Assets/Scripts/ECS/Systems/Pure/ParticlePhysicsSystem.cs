@@ -36,7 +36,6 @@ public class ParticlePhysicsSystem : JobComponentSystem
     {
         var physicsJob = new PhysicsJob() { fdt = Time.fixedDeltaTime };
         var handle = physicsJob.Schedule(this, 1, inputDeps);
-        handle.Complete();
         return handle;
     }
 }
