@@ -16,7 +16,7 @@ public class ParticlePhysicsSystem : JobComponentSystem
     {
         [ReadOnly] public float fdt;
 
-        public void Execute([WriteOnly]ref Position position, ref Particle particle)
+        public void Execute(ref Position position, ref Particle particle)
         {
             particle.force += particle.gravity;
             particle.acceleration = particle.force * particle.inverseMass;
@@ -35,6 +35,8 @@ public class ParticlePhysicsSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var physicsJob = new PhysicsJob() { fdt = Time.fixedDeltaTime };
-        return physicsJob.Schedule(this, 1, inputDeps);
+        var handle = physicsJob.Schedule(this, 1, inputDeps);
+        handle.Complete();
+        return handle;
     }
 }

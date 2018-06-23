@@ -59,3 +59,12 @@ public struct ParticleEmitter : IComponentData
     // TODO: Unused for now. The problem is: how do we handle particle pooling with ECS?
     public int maxParticles;
 }
+
+public struct NeedsMeshInstanceRendererTag : IComponentData { };
+
+[Serializable]
+public struct ParticleAttractor : IComponentData
+{
+    public float attractorStrength;
+    public float radius;
+}

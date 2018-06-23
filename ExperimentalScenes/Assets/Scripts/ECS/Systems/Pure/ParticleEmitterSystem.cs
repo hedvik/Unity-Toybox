@@ -9,9 +9,89 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+// Failed attempt at jobifying. 
+// Throws exception whenever I try to set a component despite it being on the entity due to the archetype.
+//public class ParticleEmitterSystem : JobComponentSystem
+//{
+//    private struct EmitterGroup
+//    {
+//        public int Length;
+//        public ComponentDataArray<ParticleEmitter> emitters;
+//        public ComponentDataArray<Position> positions;
+//    }
+
+//    [BurstCompile]
+//    private struct EmissionJob : IJobParallelFor
+//    {
+//        [WriteOnly] public EntityCommandBuffer.Concurrent commandBuffer;
+//        [ReadOnly] public EntityArchetype particleArchetype;
+//        //[ReadOnly] public Particle particleTemplate;
+//        //[ReadOnly] public ParticleEmitter emitter;
+//        [ReadOnly] public Position position;
+//        //[ReadOnly] public float3 emissionDirection;
+//        [ReadOnly] public float3 rotatorDirection;
+//        [ReadOnly] public float rotatorSpeed;
+
+//        public void Execute(int i)
+//        {
+//            commandBuffer.CreateEntity(particleArchetype);
+
+//            //var rotatorComponent = new RotatorComponent();
+//            //rotatorComponent.rotationSpeed = rotatorSpeed;
+//            //rotatorComponent.direction = rotatorDirection;
+
+//            //var newParticle = particleTemplate;
+//            //newParticle.velocity = (emitter.emissionDirection + emissionDirection) * emitter.initialSpeed;
+
+//            //commandBuffer.SetComponent(new Position() { Value = position.Value });
+//            //commandBuffer.SetComponent(new Rotation() { Value = new quaternion() });
+//            //commandBuffer.SetComponent(rotatorComponent);
+//            //commandBuffer.SetComponent(newParticle);
+//            //commandBuffer.AddComponent(new NeedsMeshInstanceRendererTag());
+//        }
+//    }
+
+//    [Inject] private EmitterGroup emitterGroup;
+//    [Inject] private EndFrameBarrier endFrameBarrier;
+
+//    protected override JobHandle OnUpdate(JobHandle inputDeps)
+//    {
+//        var dt = Time.deltaTime;
+//        for (int i = 0; i < emitterGroup.Length; i++)
+//        {
+//            var particleEmitter = emitterGroup.emitters[i];
+//            var emitterPosition = emitterGroup.positions[i];
+//            particleEmitter.emissionTimer += dt;
+//            if (particleEmitter.emissionTimer >= particleEmitter.emissionRate)
+//            {
+//                particleEmitter.emissionTimer = 0;
+//                var randomEmissionDirection = new float3
+//                (
+//                    Random.Range(-particleEmitter.rangeX, particleEmitter.rangeX),
+//                    Random.Range(-particleEmitter.rangeY, particleEmitter.rangeY),
+//                    Random.Range(-particleEmitter.rangeZ, particleEmitter.rangeZ)
+//                );
+//                var emissionJob = new EmissionJob() 
+//                {
+//                    commandBuffer = endFrameBarrier.CreateCommandBuffer(),
+//                    particleArchetype = BootstrapperParticles.particleArchetype,
+//                    //particleTemplate = BootstrapperParticles.particleTemplate,
+//                    //emitter = particleEmitter,
+//                    position = emitterPosition,
+//                    //emissionDirection = randomEmissionDirection,
+//                    rotatorSpeed = Random.Range(1.0f, 5.0f),
+//                    rotatorDirection = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f))
+//                };
+//                inputDeps = emissionJob.Schedule((int)particleEmitter.particlesPerEmission, 5, inputDeps);
+//            }
+//        }
+//        return inputDeps;
+//    }
+//}
+
+
 // There are a lot of references to templates going on here so working with a standard ComponentSystem is a bit easier since Jobs cannot take references like the mesh.
 // This is regardless the primary part of the particle system that could need optimisations.
-// TODO: Entity pooling would make it possible to jobify this system though! 
 public class ParticleEmitterSystem : ComponentSystem
 {
     private struct EmitterGroup
@@ -40,11 +120,12 @@ public class ParticleEmitterSystem : ComponentSystem
                 for (int j = 0; j < emitter.particlesPerEmission; j++)
                 {
                     // Generating emission vector
-                    var direction = new float3(
+                    var direction = new float3
+                    (
                         Random.Range(-emitter.rangeX, emitter.rangeX),
                         Random.Range(-emitter.rangeY, emitter.rangeY),
                         Random.Range(-emitter.rangeZ, emitter.rangeZ)
-                        );
+                    );
 
                     EmitParticle(position.Value, (emitter.emissionDirection + direction) * emitter.initialSpeed, j, particleEntities);
                 }
