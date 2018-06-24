@@ -16,9 +16,9 @@ public class EntityRotatorSystem : JobComponentSystem
     {
         public int Length;
         public ComponentDataArray<Rotation> rotations;
+        public SubtractiveComponent<DisabledComponentTag> disabledTags;
 
-        [ReadOnly]
-        public ComponentDataArray<RotatorComponent> cubeFloaterComponent;
+        [ReadOnly] public ComponentDataArray<RotatorComponent> rotatorComponent;
     }
 
     // Parallel ForLoop example
@@ -62,16 +62,16 @@ public class EntityRotatorSystem : JobComponentSystem
     {
         // For Loop example
         // We pass on the data from our entities to the job
-        //var rotatorJob = new CubeRotatorForLoopJob
-        //{
-        //    rotations = cubes.rotations,
-        //    cubeFloaterComponent = cubes.cubeFloaterComponent,
-        //    dt = Time.deltaTime
-        //};
-        //return rotatorJob.Schedule(cubes.Length, 64, inputDeps);
+        var rotatorJob = new RotatorForLoopJob
+        {
+            rotations = filteredEntities.rotations,
+            rotatorComponent = filteredEntities.rotatorComponent,
+            dt = Time.deltaTime
+        };
+        return rotatorJob.Schedule(filteredEntities.Length, 64, inputDeps);
 
         // IJobProcessComponentData example
-        var rotatorJob = new RotatorJob() { dt = Time.deltaTime };
-        return rotatorJob.Schedule(this, 64, inputDeps);
+        //var rotatorJob = new RotatorJob() { dt = Time.deltaTime };
+        //return rotatorJob.Schedule(this, 64, inputDeps);
     }
 }

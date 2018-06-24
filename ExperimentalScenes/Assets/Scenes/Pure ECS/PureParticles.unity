@@ -199,7 +199,12 @@ MonoBehaviour:
       x: 0
       y: 0
       z: 0
-    lifeTime: 5
+    initialVelocity:
+      x: 0
+      y: 0
+      z: 0
+    lifeTimer: 0
+    initialLifeTime: 3
     gravity:
       x: 0
       y: -1000
@@ -231,7 +236,7 @@ MonoBehaviour:
     rangeY: 0
     rangeZ: 1
     initialSpeed: 10
-    maxParticles: 10000
+    maxParticles: 20000
 --- !u!1 &554288086
 GameObject:
   m_ObjectHideFlags: 0

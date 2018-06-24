@@ -11,16 +11,27 @@ using UnityEngine;
 
 // There are a lot of references to templates going on here so working with a standard ComponentSystem is a bit easier since Jobs cannot take references like the mesh.
 // This is regardless the primary part of the particle system that could need optimisations.
+[UpdateBefore(typeof(UnityEngine.Experimental.PlayerLoop.Update))]
 public class ParticleEmitterSystem : ComponentSystem
 {
     private struct EmitterGroup
     {
-        public ComponentDataArray<ParticleEmitter> emitters;
-        [ReadOnly] public ComponentDataArray<Position> positions;
         [ReadOnly] public int Length;
+        [ReadOnly] public ComponentDataArray<Position> positions;
+        public ComponentDataArray<ParticleEmitter> emitters;
     }
 
-    [Inject] EmitterGroup emitterGroup;
+    private struct ParticleGroup
+    {
+        [ReadOnly] public int Length;
+        public ComponentDataArray<Position> positions;
+        public ComponentDataArray<Particle> particles;
+        public ComponentDataArray<DisabledComponentTag> disabledTags;
+        public EntityArray entities;
+    }
+
+    [Inject] private EmitterGroup emitterGroup;
+    [Inject] private ParticleGroup inactiveParticles;
 
     protected override void OnUpdate()
     {
@@ -28,48 +39,32 @@ public class ParticleEmitterSystem : ComponentSystem
         for (int i = 0; i < emitterGroup.Length; i++)
         {
             var emitter = emitterGroup.emitters[i];
-            var position = emitterGroup.positions[i];
+            var emitterPosition = emitterGroup.positions[i];
             emitter.emissionTimer += dt;
             if (emitter.emissionTimer >= emitter.emissionRate)
             {
                 emitter.emissionTimer = 0;
-                var particleEntities = new NativeArray<Entity>((int)emitterGroup.emitters[i].particlesPerEmission, Allocator.Temp);
-                // Using EntityManager invalidates all injections so we need to cleanup afterwards
-                EntityManager.CreateEntity(BootstrapperParticles.particleArchetype, particleEntities);
-                for (int j = 0; j < emitter.particlesPerEmission; j++)
+                for (int j = 0; j < emitter.particlesPerEmission && j < inactiveParticles.entities.Length; j++)
                 {
-                    // Generating emission vector
-                    var direction = new float3
-                    (
-                        Random.Range(-emitter.rangeX, emitter.rangeX),
-                        Random.Range(-emitter.rangeY, emitter.rangeY),
-                        Random.Range(-emitter.rangeZ, emitter.rangeZ)
-                    );
+                    var particle = inactiveParticles.particles[j];
+                    var position = inactiveParticles.positions[j];
 
-                    EmitParticle(position.Value, (emitter.emissionDirection + direction) * emitter.initialSpeed, j, particleEntities);
+                    particle.force = new float3(0, 0, 0);
+                    particle.acceleration = new float3(0, 0, 0);
+                    particle.velocity = particle.initialVelocity;
+                    particle.lifeTimer = particle.initialLifeTime;
+
+                    position.Value = emitterPosition.Value;
+
+                    inactiveParticles.particles[j] = particle;
+                    inactiveParticles.positions[j] = position;
+
+                    PostUpdateCommands.RemoveComponent<DisabledComponentTag>(inactiveParticles.entities[j]);
+                    PostUpdateCommands.AddSharedComponent(inactiveParticles.entities[j], BootstrapperParticles.particleLook);
                 }
-                // Cleanup
-                particleEntities.Dispose();
-                UpdateInjectedComponentGroups();
             }
             emitterGroup.emitters[i] = emitter;
         }
-    }
-
-    private void EmitParticle(float3 position, float3 velocity, int index, NativeArray<Entity> entities)
-    {
-        var rotatorComponent = new RotatorComponent();
-        rotatorComponent.rotationSpeed = Random.Range(1.0f, 5.0f);
-        rotatorComponent.direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
-
-        var newParticle = BootstrapperParticles.particleTemplate;
-        newParticle.velocity = velocity;
-
-        EntityManager.SetComponentData(entities[index], new Position() { Value = position });
-        EntityManager.SetComponentData(entities[index], new Rotation() { Value = quaternion.identity });
-        EntityManager.SetComponentData(entities[index], rotatorComponent);
-        EntityManager.SetComponentData(entities[index], newParticle);
-        EntityManager.AddSharedComponentData(entities[index], BootstrapperParticles.particleLook);
     }
 }
 

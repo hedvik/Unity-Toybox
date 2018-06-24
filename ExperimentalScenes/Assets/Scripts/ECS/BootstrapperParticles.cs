@@ -52,6 +52,36 @@ public class BootstrapperParticles
         var emitterEntity = entityManager.CreateEntity(particleEmitterArchetype);
         entityManager.SetComponentData(emitterEntity, new Position() { Value = particleEmitterTemplate.emitterPosition });
         entityManager.SetComponentData(emitterEntity, particleEmitterTemplate);
+        var emitterPosition = entityManager.GetComponentData<Position>(emitterEntity);
+
+        var particleArray = new NativeArray<Entity>(particleEmitterTemplate.maxParticles, Allocator.Temp);
+        entityManager.CreateEntity(particleArchetype, particleArray);
+
+        for(int i = 0; i < particleArray.Length; i++)
+        {
+            // Generating emission vector
+            var direction = new float3
+            (
+                Random.Range(-particleEmitterTemplate.rangeX, particleEmitterTemplate.rangeX),
+                Random.Range(-particleEmitterTemplate.rangeY, particleEmitterTemplate.rangeY),
+                Random.Range(-particleEmitterTemplate.rangeZ, particleEmitterTemplate.rangeZ)
+            );
+
+            var rotatorComponent = new RotatorComponent();
+            rotatorComponent.rotationSpeed = Random.Range(1.0f, 5.0f);
+            rotatorComponent.direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
+
+            var newParticle = particleTemplate;
+            newParticle.initialVelocity = (particleEmitterTemplate.emissionDirection + direction) * particleEmitterTemplate.initialSpeed;
+
+            entityManager.SetComponentData(particleArray[i], new Position() { Value = emitterPosition.Value });
+            entityManager.SetComponentData(particleArray[i], new Rotation() { Value = quaternion.identity });
+            entityManager.SetComponentData(particleArray[i], rotatorComponent);
+            entityManager.SetComponentData(particleArray[i], newParticle);
+            entityManager.AddComponentData(particleArray[i], new DisabledComponentTag());
+        }
+
+        particleArray.Dispose();
     }
 
     private static void GetSettingsFromPrototype(string protoName)

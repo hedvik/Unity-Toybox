@@ -36,8 +36,9 @@ public struct Particle : IComponentData
     [HideInInspector] public float3 force;
     [HideInInspector] public float3 acceleration;
     [HideInInspector] public float3 velocity;
-
-    public float lifeTime;
+    [HideInInspector] public float3 initialVelocity;
+    [HideInInspector] public float lifeTimer;
+    public float initialLifeTime;
     public float3 gravity;
 }
 
@@ -55,12 +56,11 @@ public struct ParticleEmitter : IComponentData
     public float rangeY;
     public float rangeZ;
     public float initialSpeed;
-
-    // TODO: Unused for now. The problem is: how do we handle particle pooling with ECS?
     public int maxParticles;
 }
 
 public struct NeedsMeshInstanceRendererTag : ISharedComponentData { };
+public struct DisabledComponentTag : IComponentData { };
 
 [Serializable]
 public struct ParticleAttractor : IComponentData

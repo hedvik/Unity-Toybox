@@ -4,15 +4,18 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateBefore(typeof(UnityEngine.Experimental.PlayerLoop.PostLateUpdate))]
 public class ParticleLifetimeSystem : JobComponentSystem
 {
     struct ParticleGroup
     {
         public int Length;
         public ComponentDataArray<Particle> particles;
+        public SubtractiveComponent<DisabledComponentTag> disabledTags;
         public EntityArray entities;
     }
 
@@ -28,29 +31,31 @@ public class ParticleLifetimeSystem : JobComponentSystem
         public void Execute(int i)
         {
             var particle = particles[i];
-            particle.lifeTime -= dt;
+            particle.lifeTimer -= dt;
             particles[i] = particle;
 
-            if (particle.lifeTime < 0)
+            if (particle.lifeTimer < 0)
             {
-                commandBuffer.DestroyEntity(entities[i]);
+                commandBuffer.AddComponent(entities[i], new DisabledComponentTag());
+                commandBuffer.RemoveComponent<MeshInstanceRenderer>(entities[i]);
             }
         }
     }
 
     [Inject] ParticleGroup particleGroup;
-    [Inject] EndFrameBarrier endFrameBarrier;
+    [Inject] EndFrameBarrier barrier;
 
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var lifeTimeJob = new LifetimeJob()
         {
             dt = Time.deltaTime,
-            commandBuffer = endFrameBarrier.CreateCommandBuffer(),
+            commandBuffer = barrier.CreateCommandBuffer(),
             particles = particleGroup.particles,
             entities = particleGroup.entities
         };
 
-        return lifeTimeJob.Schedule(particleGroup.Length, 1, inputDeps);
+        var handle = lifeTimeJob.Schedule(particleGroup.Length, 1, inputDeps);
+        return handle;
     }
 }

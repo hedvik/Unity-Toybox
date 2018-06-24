@@ -16,6 +16,7 @@ public class ParticleAttractorSystem : JobComponentSystem
         public int Length;
         public ComponentDataArray<ParticleAttractor> particleAttractors;
         public ComponentDataArray<Position> particleAttractorPositions;
+        public SubtractiveComponent<DisabledComponentTag> disabledTag;
     }
 
     [BurstCompile]
