@@ -1,13 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Rendering;
-using Unity.Transforms;
-using UnityEngine;
 
 // This system allows us to jobify most of the particle emission outside of adding the MeshInstanceRenderer as it cannot be put into jobs at the moment.
 public class MeshInstanceRendererAdderSystem : ComponentSystem

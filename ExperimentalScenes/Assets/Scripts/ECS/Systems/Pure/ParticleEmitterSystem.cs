@@ -9,8 +9,112 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-// There are a lot of references to templates going on here so working with a standard ComponentSystem is a bit easier since Jobs cannot take references like the mesh.
-// This is regardless the primary part of the particle system that could need optimisations.
+// Jobified example, but it is a smidge slower (0.1ish ms) than the single threaded version as MeshInstanceRendererAdderSystem takes time.
+// Being able to add MeshInstanceRenderer directly during creation would remove the need for MeshInstanceRendererAdderSystem. 
+//[UpdateBefore(typeof(UnityEngine.Experimental.PlayerLoop.Update))]
+//public class ParticleEmitterSystem : JobComponentSystem
+//{
+//    private struct EmitterGroup
+//    {
+//        public ComponentDataArray<ParticleEmitter> emitters;
+//        //[ReadOnly] public ComponentDataArray<Position> positions;
+//        [ReadOnly] public int Length;
+//    }
+
+//    //[BurstCompile]
+//    private struct EmissionJob : IJobParallelFor
+//    {
+//        [WriteOnly] public EntityCommandBuffer.Concurrent commandBuffer;
+//        [ReadOnly] public EntityArchetype particleArchetype;
+//        [ReadOnly] public NativeArray<RotatorComponent> randomRotators;
+//        [ReadOnly] public NativeArray<float3> randomDirections;
+//        [ReadOnly] public ParticleEmitter emitter;
+//        [ReadOnly] public Position emitterPosition;
+//        [ReadOnly] public int offset;
+
+//        public void Execute(int i)
+//        {
+//            commandBuffer.CreateEntity(particleArchetype);
+//            var rotatorComponent = randomRotators[i * offset];
+
+//            var newParticle = BootstrapperParticles.particleTemplate;
+//            newParticle.velocity = (emitter.emissionDirection + randomDirections[i * offset]) * emitter.initialSpeed;
+
+//            commandBuffer.SetComponent(new Position() { Value =  emitterPosition.Value});
+//            commandBuffer.SetComponent(new Rotation() { Value = quaternion.identity });
+//            commandBuffer.SetComponent(rotatorComponent);
+//            commandBuffer.SetComponent(newParticle);
+//            commandBuffer.AddSharedComponent(new NeedsMeshInstanceRendererTag());
+//        }
+//    }
+
+//    [Inject] EmitterGroup emitterGroup;
+//    [Inject] EndFrameBarrier endFrameBarrier;
+
+//    private NativeArray<float3> randomEmissionDirections;
+//    private NativeArray<RotatorComponent> randomRotatorComponents;
+
+//    protected override void OnStartRunning()
+//    {
+//        // For now we only support one emitter for the sake of simplicity
+//        var emitter = BootstrapperParticles.particleEmitterTemplate;
+//        randomEmissionDirections = new NativeArray<float3>(emitter.maxParticles, Allocator.Persistent);
+//        randomRotatorComponents = new NativeArray<RotatorComponent>(emitter.maxParticles, Allocator.Persistent);
+
+//        for (int i = 0; i < emitter.maxParticles; i++)
+//        {
+//            randomEmissionDirections[i] = new float3
+//            (
+//                Random.Range(-emitter.rangeX, emitter.rangeX),
+//                Random.Range(-emitter.rangeY, emitter.rangeY),
+//                Random.Range(-emitter.rangeZ, emitter.rangeZ)
+//            );
+
+//            var rotator = new RotatorComponent();
+//            rotator.rotationSpeed = Random.Range(1.0f, 5.0f);
+//            rotator.direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
+//            randomRotatorComponents[i] = rotator;
+//        }
+//    }
+
+//    protected override void OnStopRunning()
+//    {
+//        randomEmissionDirections.Dispose();
+//        randomRotatorComponents.Dispose();
+//    }
+
+//    protected override JobHandle OnUpdate(JobHandle inputDeps)
+//    {
+//        var jobHandle = inputDeps;
+//        var dt = Time.deltaTime;
+//        for (int i = 0; i < emitterGroup.Length; i++)
+//        {
+//            var emitter = emitterGroup.emitters[i];
+//            var position = emitterGroup.emitters[i].emitterPosition;
+//            emitter.emissionTimer += dt;
+//            if (emitter.emissionTimer >= emitter.emissionRate)
+//            {
+//                emitter.emissionTimer = 0;
+//                var emissionJob = new EmissionJob()
+//                {
+//                    commandBuffer = endFrameBarrier.CreateCommandBuffer(),
+//                    particleArchetype = BootstrapperParticles.particleArchetype,
+//                    randomDirections = randomEmissionDirections,
+//                    randomRotators = randomRotatorComponents,
+//                    emitter = emitter,
+//                    emitterPosition = new Position() { Value = position },
+//                    offset = Random.Range(0, emitter.maxParticles / (int)emitter.particlesPerEmission)
+//                };
+//                jobHandle = emissionJob.Schedule((int)emitter.particlesPerEmission, 1, inputDeps);
+//            }
+//            emitterGroup.emitters[i] = emitter;
+//        }
+
+//        return jobHandle;
+//    }
+//}
+
+// The fastest main thread approach so far
 public class ParticleEmitterSystem : ComponentSystem
 {
     private struct EmitterGroup
@@ -21,6 +125,30 @@ public class ParticleEmitterSystem : ComponentSystem
     }
 
     [Inject] EmitterGroup emitterGroup;
+
+    private float3[] randomEmissionDirections;
+    private RotatorComponent[] randomRotatorComponents;
+
+    protected override void OnStartRunning()
+    {
+        // For now we only support one emitter for the sake of simplicity
+        var emitter = BootstrapperParticles.particleEmitterTemplate;
+        randomEmissionDirections = new float3[emitter.maxParticles];
+        randomRotatorComponents = new RotatorComponent[emitter.maxParticles];
+
+        for (int i = 0; i < emitter.maxParticles; i++)
+        {
+            randomEmissionDirections[i] = new float3
+            (
+                Random.Range(-emitter.rangeX, emitter.rangeX),
+                Random.Range(-emitter.rangeY, emitter.rangeY),
+                Random.Range(-emitter.rangeZ, emitter.rangeZ)
+            );
+
+            randomRotatorComponents[i].rotationSpeed = Random.Range(1.0f, 5.0f);
+            randomRotatorComponents[i].direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
+        }
+    }
 
     protected override void OnUpdate()
     {
@@ -33,19 +161,13 @@ public class ParticleEmitterSystem : ComponentSystem
             if (emitter.emissionTimer >= emitter.emissionRate)
             {
                 emitter.emissionTimer = 0;
-                var particleEntities = new NativeArray<Entity>((int)emitterGroup.emitters[i].particlesPerEmission, Allocator.Temp);
+                var particleEntities = new NativeArray<Entity>((int)emitter.particlesPerEmission, Allocator.Temp);
                 // Using EntityManager invalidates all injections so we need to cleanup afterwards
                 EntityManager.CreateEntity(BootstrapperParticles.particleArchetype, particleEntities);
                 for (int j = 0; j < emitter.particlesPerEmission; j++)
                 {
-                    // Generating emission vector
-                    var direction = new float3
-                    (
-                        Random.Range(-emitter.rangeX, emitter.rangeX),
-                        Random.Range(-emitter.rangeY, emitter.rangeY),
-                        Random.Range(-emitter.rangeZ, emitter.rangeZ)
-                    );
-
+                    // "Generating" emission vector
+                    var direction = randomEmissionDirections[Random.Range(0, randomEmissionDirections.Length)];
                     EmitParticle(position.Value, (emitter.emissionDirection + direction) * emitter.initialSpeed, j, particleEntities);
                 }
                 // Cleanup
@@ -58,9 +180,7 @@ public class ParticleEmitterSystem : ComponentSystem
 
     private void EmitParticle(float3 position, float3 velocity, int index, NativeArray<Entity> entities)
     {
-        var rotatorComponent = new RotatorComponent();
-        rotatorComponent.rotationSpeed = Random.Range(1.0f, 5.0f);
-        rotatorComponent.direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
+        var rotatorComponent = randomRotatorComponents[Random.Range(0, randomRotatorComponents.Length)];
 
         var newParticle = BootstrapperParticles.particleTemplate;
         newParticle.velocity = velocity;
@@ -72,147 +192,3 @@ public class ParticleEmitterSystem : ComponentSystem
         EntityManager.AddSharedComponentData(entities[index], BootstrapperParticles.particleLook);
     }
 }
-
-// Failed attempt at jobifying. 
-// Throws exception whenever I try to set a component despite it being on the entity due to the archetype.
-// This is due to a peculiarity apparently:https://github.com/Unity-Technologies/EntityComponentSystemSamples/search?q=commandBuffer&unscoped_q=commandBuffer 
-//public class ParticleEmitterSystem : JobComponentSystem
-//{
-//    private struct EmitterGroup
-//    {
-//        public int Length;
-//        public ComponentDataArray<ParticleEmitter> emitters;
-//        public ComponentDataArray<Position> positions;
-//    }
-
-//    //[BurstCompile]
-//    //This cannot currently be burst compiled because CommandBuffer.SetComponent() accesses a static field.
-//    private struct EmissionJob : IJob
-//    {
-//        [WriteOnly] public EntityCommandBuffer.Concurrent commandBuffer;
-//        [ReadOnly] public EntityArchetype particleArchetype;
-//        [ReadOnly] public Particle particleTemplate;
-//        [ReadOnly] public ParticleEmitter emitter;
-//        [ReadOnly] public Position position;
-//        [ReadOnly] public float3 emissionDirection;
-//        [ReadOnly] public float3 rotatorDirection;
-//        [ReadOnly] public float rotatorSpeed;
-
-//        public void Execute()
-//        {
-//            for (int i = 0; i < emitter.particlesPerEmission; i++)
-//            {
-//                commandBuffer.CreateEntity(particleArchetype);
-
-//                var rotatorComponent = new RotatorComponent();
-//                rotatorComponent.rotationSpeed = rotatorSpeed;
-//                rotatorComponent.direction = rotatorDirection;
-
-//                var newParticle = particleTemplate;
-//                newParticle.velocity = (emitter.emissionDirection + emissionDirection) * emitter.initialSpeed;
-
-//                commandBuffer.SetComponent(new Position() { Value = position.Value });
-//                commandBuffer.SetComponent(new Rotation() { Value = new quaternion() });
-//                commandBuffer.SetComponent(rotatorComponent);
-//                commandBuffer.SetComponent(newParticle);
-//                commandBuffer.AddSharedComponent(new NeedsMeshInstanceRendererTag());
-//            }
-//        }
-//    }
-
-//    [Inject] private EmitterGroup emitterGroup;
-//    [Inject] private EndFrameBarrier endFrameBarrier;
-
-//    protected override JobHandle OnUpdate(JobHandle inputDeps)
-//    {
-//        var dt = Time.deltaTime;
-//        for (int i = 0; i < emitterGroup.Length; i++)
-//        {
-//            var particleEmitter = emitterGroup.emitters[i];
-//            var emitterPosition = emitterGroup.positions[i];
-//            particleEmitter.emissionTimer += dt;
-//            if (particleEmitter.emissionTimer >= particleEmitter.emissionRate)
-//            {
-//                particleEmitter.emissionTimer = 0;
-//                var randomEmissionDirection = new float3
-//                (
-//                    Random.Range(-particleEmitter.rangeX, particleEmitter.rangeX),
-//                    Random.Range(-particleEmitter.rangeY, particleEmitter.rangeY),
-//                    Random.Range(-particleEmitter.rangeZ, particleEmitter.rangeZ)
-//                );
-//                var emissionJob = new EmissionJob()
-//                {
-//                    commandBuffer = endFrameBarrier.CreateCommandBuffer(),
-//                    particleArchetype = BootstrapperParticles.particleArchetype,
-//                    particleTemplate = BootstrapperParticles.particleTemplate,
-//                    emitter = particleEmitter,
-//                    position = emitterPosition,
-//                    emissionDirection = randomEmissionDirection,
-//                    rotatorSpeed = Random.Range(1.0f, 5.0f),
-//                    rotatorDirection = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f))
-//                };
-//                var handle = emissionJob.Schedule(inputDeps);
-//                handle.Complete();
-//            }
-//        }
-//        return inputDeps;
-//    }
-//}
-
-
-// Above approach is slightly faster
-//public class ParticleEmitterSystem : ComponentSystem
-//{
-//    private struct EmitterGroup
-//    {
-//        public ComponentDataArray<ParticleEmitter> emitters;
-//        [ReadOnly] public ComponentDataArray<Position> positions;
-//        [ReadOnly] public int Length;
-//    }
-
-//    [Inject] EmitterGroup emitterGroup;
-
-//    protected override void OnUpdate()
-//    {
-//        var dt = Time.deltaTime;
-//        for (int i = 0; i < emitterGroup.Length; i++)
-//        {
-//            var emitter = emitterGroup.emitters[i];
-//            emitter.emissionTimer += dt;
-//            if (emitter.emissionTimer >= emitter.emissionRate)
-//            {
-//                emitter.emissionTimer = 0;
-//                for (int j = 0; j < emitterGroup.emitters[i].particlesPerEmission; j++)
-//                {
-//                    // Generating emission vector
-//                    var direction = new float3(
-//                        Random.Range(-emitterGroup.emitters[i].rangeX, emitterGroup.emitters[i].rangeX),
-//                        Random.Range(-emitterGroup.emitters[i].rangeY, emitterGroup.emitters[i].rangeY),
-//                        Random.Range(-emitterGroup.emitters[i].rangeZ, emitterGroup.emitters[i].rangeZ)
-//                        );
-
-//                    EmitParticle(emitterGroup.positions[i].Value, (emitterGroup.emitters[i].emissionDirection + direction) * emitterGroup.emitters[i].initialSpeed);
-//                }
-//            }
-//            emitterGroup.emitters[i] = emitter;
-//        }
-//    }
-
-//    private void EmitParticle(float3 position, float3 velocity)
-//    {
-//        PostUpdateCommands.CreateEntity(BootstrapperParticles.particleArchetype);
-
-//        var rotatorComponent = new RotatorComponent();
-//        rotatorComponent.rotationSpeed = Random.Range(1.0f, 5.0f);
-//        rotatorComponent.direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
-
-//        var newParticle = BootstrapperParticles.particleTemplate;
-//        newParticle.velocity = velocity;
-
-//        PostUpdateCommands.SetComponent(new Position() { Value = position });
-//        PostUpdateCommands.SetComponent(new Rotation() { Value = new quaternion() });
-//        PostUpdateCommands.SetComponent(rotatorComponent);
-//        PostUpdateCommands.SetComponent(newParticle);
-//        PostUpdateCommands.AddSharedComponent(BootstrapperParticles.particleLook);
-//    }
-//}
