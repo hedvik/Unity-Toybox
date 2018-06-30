@@ -7,19 +7,21 @@ using Unity.Jobs;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Unity.Mathematics;
 
-[UpdateBefore(typeof(UnityEngine.Experimental.PlayerLoop.PostLateUpdate))]
+[UpdateBefore(typeof(UnityEngine.Experimental.PlayerLoop.Update))]
 public class ParticleLifetimeSystem : JobComponentSystem
 {
     struct ParticleGroup
     {
         public int Length;
         public ComponentDataArray<Particle> particles;
+        public ComponentDataArray<Position> positions;
         public SubtractiveComponent<DisabledComponentTag> disabledTags;
         public EntityArray entities;
     }
 
-    [BurstCompile]
+    //[BurstCompile]
     struct LifetimeJob : IJobParallelFor
     {
         public ComponentDataArray<Particle> particles;
@@ -27,6 +29,7 @@ public class ParticleLifetimeSystem : JobComponentSystem
         [ReadOnly] public float dt;
         [ReadOnly] public EntityArray entities;
         [WriteOnly] public EntityCommandBuffer.Concurrent commandBuffer;
+        [WriteOnly] public ComponentDataArray<Position> positions;
 
         public void Execute(int i)
         {
@@ -37,7 +40,7 @@ public class ParticleLifetimeSystem : JobComponentSystem
             if (particle.lifeTimer < 0)
             {
                 commandBuffer.AddComponent(entities[i], new DisabledComponentTag());
-                commandBuffer.RemoveComponent<MeshInstanceRenderer>(entities[i]);
+                positions[i] = new Position(){ Value = new float3(0, 10000, 0) };
             }
         }
     }
@@ -52,7 +55,8 @@ public class ParticleLifetimeSystem : JobComponentSystem
             dt = Time.deltaTime,
             commandBuffer = barrier.CreateCommandBuffer(),
             particles = particleGroup.particles,
-            entities = particleGroup.entities
+            entities = particleGroup.entities,
+            positions = particleGroup.positions
         };
 
         var handle = lifeTimeJob.Schedule(particleGroup.Length, 1, inputDeps);

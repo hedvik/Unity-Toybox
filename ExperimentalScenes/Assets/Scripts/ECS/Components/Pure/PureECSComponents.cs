@@ -59,7 +59,7 @@ public struct ParticleEmitter : IComponentData
     public int maxParticles;
 }
 
-public struct NeedsMeshInstanceRendererTag : ISharedComponentData { };
+public struct NeedsMeshInstanceRendererTag : IComponentData { };
 public struct DisabledComponentTag : IComponentData { };
 
 [Serializable]

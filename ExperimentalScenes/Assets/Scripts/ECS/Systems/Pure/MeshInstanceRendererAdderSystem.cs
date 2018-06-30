@@ -16,7 +16,7 @@ public class MeshInstanceRendererAdderSystem : ComponentSystem
     {
         [WriteOnly] public EntityArray entities;
         [ReadOnly] public int Length;
-        [ReadOnly] public SharedComponentDataArray<NeedsMeshInstanceRendererTag> taggedEntities;
+        [ReadOnly] public ComponentDataArray<NeedsMeshInstanceRendererTag> taggedEntities;
     }
 
     [Inject] private TagGroup tagGroup;

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
@@ -9,62 +10,82 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-// There are a lot of references to templates going on here so working with a standard ComponentSystem is a bit easier since Jobs cannot take references like the mesh.
-// This is regardless the primary part of the particle system that could need optimisations.
 [UpdateBefore(typeof(UnityEngine.Experimental.PlayerLoop.Update))]
-public class ParticleEmitterSystem : ComponentSystem
+public class ParticleEmitterSystem : JobComponentSystem
 {
     private struct EmitterGroup
     {
         [ReadOnly] public int Length;
-        [ReadOnly] public ComponentDataArray<Position> positions;
+        //[ReadOnly] public ComponentDataArray<Position> positions;
         public ComponentDataArray<ParticleEmitter> emitters;
     }
 
     private struct ParticleGroup
     {
         [ReadOnly] public int Length;
+        [ReadOnly] public ComponentDataArray<DisabledComponentTag> disabledTags;
         public ComponentDataArray<Position> positions;
         public ComponentDataArray<Particle> particles;
-        public ComponentDataArray<DisabledComponentTag> disabledTags;
-        public EntityArray entities;
+        [ReadOnly] public EntityArray entities;
+    }
+
+    //[BurstCompile] 
+    // BurstCompile does not like to deal with add/remove/set and entityarray
+    private struct EmissionJob : IJobParallelFor
+    {
+        [WriteOnly] public EntityCommandBuffer.Concurrent commandBuffer;
+        [ReadOnly] public EntityArray inactiveEntities;
+        [ReadOnly] public float3 emitterPosition;
+        public ComponentDataArray<Particle> particles;
+        public ComponentDataArray<Position> positions;
+
+        public void Execute(int i)
+        {
+            var particle = particles[i];
+            var position = positions[i];
+
+            particle.force = new float3(0, 0, 0);
+            particle.acceleration = new float3(0, 0, 0);
+            particle.velocity = particle.initialVelocity;
+            particle.lifeTimer = particle.initialLifeTime;
+
+            position.Value = emitterPosition;
+
+            particles[i] = particle;
+            positions[i] = position;
+            commandBuffer.RemoveComponent<DisabledComponentTag>(inactiveEntities[i]);
+        }
     }
 
     [Inject] private EmitterGroup emitterGroup;
     [Inject] private ParticleGroup inactiveParticles;
+    [Inject] private EndFrameBarrier endFrameBarrier;
 
-    protected override void OnUpdate()
+    protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var dt = Time.deltaTime;
+        var jobHandle = inputDeps;
         for (int i = 0; i < emitterGroup.Length; i++)
         {
             var emitter = emitterGroup.emitters[i];
-            var emitterPosition = emitterGroup.positions[i];
             emitter.emissionTimer += dt;
             if (emitter.emissionTimer >= emitter.emissionRate)
             {
-                emitter.emissionTimer = 0;
-                for (int j = 0; j < emitter.particlesPerEmission && j < inactiveParticles.entities.Length; j++)
+                emitter.emissionTimer -= emitter.emissionRate;
+                var emissionJob = new EmissionJob
                 {
-                    var particle = inactiveParticles.particles[j];
-                    var position = inactiveParticles.positions[j];
-
-                    particle.force = new float3(0, 0, 0);
-                    particle.acceleration = new float3(0, 0, 0);
-                    particle.velocity = particle.initialVelocity;
-                    particle.lifeTimer = particle.initialLifeTime;
-
-                    position.Value = emitterPosition.Value;
-
-                    inactiveParticles.particles[j] = particle;
-                    inactiveParticles.positions[j] = position;
-
-                    PostUpdateCommands.RemoveComponent<DisabledComponentTag>(inactiveParticles.entities[j]);
-                    PostUpdateCommands.AddSharedComponent(inactiveParticles.entities[j], BootstrapperParticles.particleLook);
-                }
+                    commandBuffer = endFrameBarrier.CreateCommandBuffer(),
+                    inactiveEntities = inactiveParticles.entities,
+                    emitterPosition = emitter.emitterPosition,
+                    particles = inactiveParticles.particles,
+                    positions = inactiveParticles.positions
+                };
+                var amountOfJobs = (inactiveParticles.entities.Length < emitter.particlesPerEmission) ? inactiveParticles.entities.Length : (int)emitter.particlesPerEmission;
+                jobHandle = emissionJob.Schedule(amountOfJobs, 1, inputDeps);
             }
             emitterGroup.emitters[i] = emitter;
         }
+        return jobHandle;
     }
 }
 

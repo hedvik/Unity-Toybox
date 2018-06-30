@@ -74,11 +74,12 @@ public class BootstrapperParticles
             var newParticle = particleTemplate;
             newParticle.initialVelocity = (particleEmitterTemplate.emissionDirection + direction) * particleEmitterTemplate.initialSpeed;
 
-            entityManager.SetComponentData(particleArray[i], new Position() { Value = emitterPosition.Value });
+            entityManager.SetComponentData(particleArray[i], new Position() { Value = new float3(0, 10000, 0) });
             entityManager.SetComponentData(particleArray[i], new Rotation() { Value = quaternion.identity });
             entityManager.SetComponentData(particleArray[i], rotatorComponent);
             entityManager.SetComponentData(particleArray[i], newParticle);
             entityManager.AddComponentData(particleArray[i], new DisabledComponentTag());
+            entityManager.AddSharedComponentData(particleArray[i], particleLook);
         }
 
         particleArray.Dispose();
