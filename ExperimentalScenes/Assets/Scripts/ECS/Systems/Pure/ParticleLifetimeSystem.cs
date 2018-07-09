@@ -11,7 +11,7 @@ public class ParticleLifetimeSystem : JobComponentSystem
 {
     struct ParticleGroup
     {
-        public int Length;
+        public readonly int Length;
         public ComponentDataArray<Particle> particles;
         public EntityArray entities;
     }

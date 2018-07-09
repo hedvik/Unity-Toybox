@@ -16,10 +16,9 @@ public class PixelCubePlacer : JobComponentSystem
     // Component Group
     public struct SystemData
     {
-        [ReadOnly]
-        public SharedComponentDataArray<ImageColours> imageColours;
+        [ReadOnly] public SharedComponentDataArray<ImageColours> imageColours;
 
-        public int Length;
+        public readonly int Length;
         public ComponentDataArray<Position> positions;
         public ComponentDataArray<InitializePositionTag> initTags;
         public EntityArray entities;

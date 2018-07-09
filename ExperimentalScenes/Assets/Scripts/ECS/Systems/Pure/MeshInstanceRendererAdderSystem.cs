@@ -7,7 +7,7 @@ public class MeshInstanceRendererAdderSystem : ComponentSystem
     private struct TagGroup
     {
         [WriteOnly] public EntityArray entities;
-        [ReadOnly] public int Length;
+        public readonly int Length;
         [ReadOnly] public SharedComponentDataArray<NeedsMeshInstanceRendererTag> taggedEntities;
     }
 

@@ -9,7 +9,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-// Jobified example, but it is a smidge slower (0.1ish ms) than the single threaded version as MeshInstanceRendererAdderSystem takes time.
+// Jobified example, hard to say which one is faster as both fluctuate in terms of frame latency per test :p
 // Being able to add MeshInstanceRenderer directly during creation would remove the need for MeshInstanceRendererAdderSystem. 
 //[UpdateBefore(typeof(UnityEngine.Experimental.PlayerLoop.Update))]
 //public class ParticleEmitterSystem : JobComponentSystem
@@ -17,8 +17,7 @@ using UnityEngine;
 //    private struct EmitterGroup
 //    {
 //        public ComponentDataArray<ParticleEmitter> emitters;
-//        //[ReadOnly] public ComponentDataArray<Position> positions;
-//        [ReadOnly] public int Length;
+//        public readonly int Length;
 //    }
 
 //    //[BurstCompile]
@@ -40,7 +39,7 @@ using UnityEngine;
 //            var newParticle = BootstrapperParticles.particleTemplate;
 //            newParticle.velocity = (emitter.emissionDirection + randomDirections[i * offset]) * emitter.initialSpeed;
 
-//            commandBuffer.SetComponent(new Position() { Value =  emitterPosition.Value});
+//            commandBuffer.SetComponent(new Position() { Value = emitterPosition.Value });
 //            commandBuffer.SetComponent(new Rotation() { Value = quaternion.identity });
 //            commandBuffer.SetComponent(rotatorComponent);
 //            commandBuffer.SetComponent(newParticle);
@@ -114,17 +113,17 @@ using UnityEngine;
 //    }
 //}
 
-// The fastest main thread approach so far
+//The fastest main thread approach so far
 public class ParticleEmitterSystem : ComponentSystem
 {
     private struct EmitterGroup
     {
         public ComponentDataArray<ParticleEmitter> emitters;
         [ReadOnly] public ComponentDataArray<Position> positions;
-        [ReadOnly] public int Length;
+        public readonly int Length;
     }
 
-    [Inject] EmitterGroup emitterGroup;
+    [Inject] private EmitterGroup emitterGroup;
 
     private float3[] randomEmissionDirections;
     private RotatorComponent[] randomRotatorComponents;

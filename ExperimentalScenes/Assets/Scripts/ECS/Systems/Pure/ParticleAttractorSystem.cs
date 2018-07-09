@@ -13,7 +13,7 @@ public class ParticleAttractorSystem : JobComponentSystem
 {
     private struct AttractorGroup
     {
-        public int Length;
+        public readonly int Length;
         public ComponentDataArray<ParticleAttractor> particleAttractors;
         public ComponentDataArray<Position> particleAttractorPositions;
     }
@@ -33,14 +33,10 @@ public class ParticleAttractorSystem : JobComponentSystem
                             math.pow((position.Value.y - particleAttractorPositions[i].Value.y), 2) +
                             math.pow((position.Value.z - particleAttractorPositions[i].Value.z), 2));
                 var powRadius = math.pow(particleAttractors[i].radius, 2);
+                var attractionVector = math.normalize(particleAttractorPositions[i].Value - position.Value) * particleAttractors[i].attractorStrength;
 
-                if (calc < powRadius)
-                {
-                    particle.force += math.normalize(particleAttractorPositions[i].Value - position.Value) * particleAttractors[i].attractorStrength;
-                    //var forceVector = particleAttractorPositions[i].Value - position.Value;
-                    //var inverseMultiplier = powRadius - calc
-                    //particle.force += math.normalize(forceVector) * inverseMultiplier * particleAttractors[i].attractorStrength;
-                }
+                // Math.select should be faster than branching with a if statement
+                particle.force += math.select(new float3(0, 0, 0), attractionVector, math.lessThan(calc, powRadius));
             }
         }
     }

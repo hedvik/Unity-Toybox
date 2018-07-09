@@ -14,11 +14,10 @@ public class EntityRotatorSystem : JobComponentSystem
     // Component Group
     public struct SystemData
     {
-        public int Length;
+        public readonly int Length;
         public ComponentDataArray<Rotation> rotations;
 
-        [ReadOnly]
-        public ComponentDataArray<RotatorComponent> cubeFloaterComponent;
+        [ReadOnly] public ComponentDataArray<RotatorComponent> cubeFloaterComponent;
     }
 
     // Parallel ForLoop example
@@ -28,14 +27,13 @@ public class EntityRotatorSystem : JobComponentSystem
         [ReadOnly] public float dt;
         public ComponentDataArray<Rotation> rotations;
 
-        [ReadOnly]
-        public ComponentDataArray<RotatorComponent> rotatorComponent;
+        [ReadOnly] public ComponentDataArray<RotatorComponent> rotatorComponent;
 
         public void Execute(int i)
         {
             rotations[i] = new Rotation
             {
-                Value = math.mul(math.normalize(rotations[i].Value), math.axisAngle(rotatorComponent[i].direction, rotatorComponent[i].rotationSpeed * dt))
+                Value = math.mul(math.normalize(rotations[i].Value), quaternion.axisAngle(rotatorComponent[i].direction, rotatorComponent[i].rotationSpeed * dt))
             };
         }
     }
@@ -49,7 +47,7 @@ public class EntityRotatorSystem : JobComponentSystem
 
         public void Execute(ref Rotation rotation, [ReadOnly]ref RotatorComponent rotatorComponent)
         {
-            rotation.Value = math.mul(math.normalize(rotation.Value), math.axisAngle(rotatorComponent.direction, rotatorComponent.rotationSpeed * dt));
+            rotation.Value = math.mul(math.normalize(rotation.Value), quaternion.axisAngle(rotatorComponent.direction, rotatorComponent.rotationSpeed * dt));
         }
     }
 
