@@ -113,7 +113,7 @@ using UnityEngine;
 //    }
 //}
 
-//The fastest main thread approach so far
+// The fastest main thread approach so far
 public class ParticleEmitterSystem : ComponentSystem
 {
     private struct EmitterGroup
