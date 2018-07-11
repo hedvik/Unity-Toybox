@@ -6,7 +6,7 @@ Material:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Foggy
+  m_Name: MinimalistFog
   m_Shader: {fileID: 4800000, guid: d71d3d3561a980043a22a016bc89b440, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
