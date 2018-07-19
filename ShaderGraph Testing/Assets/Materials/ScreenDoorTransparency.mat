@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Water
-  m_Shader: {fileID: 4800000, guid: 373af6edcbf9fb04e9545d4bc7827d83, type: 3}
+  m_Name: ScreenDoorTransparency
+  m_Shader: {fileID: 4800000, guid: d2740c38965a4774eaf54fe42164f2b5, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -18,10 +18,6 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - Texture2D_9644551E:
-        m_Texture: {fileID: 2800000, guid: 6a0c633e4b0d8f84b89fb63969574487, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _AnisotropyMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -82,10 +78,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _SampleTexture2DLOD_3D27CCB3_Texture:
-        m_Texture: {fileID: 2800000, guid: b15225722325cba42b59334a61bbe6e3, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _SpecularColorMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -111,13 +103,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - Vector1_12650326: 0.8
-    - Vector1_3BBCFCC4: 0.54
-    - Vector1_420B361D: 4
-    - Vector1_4641FFE7: 0.822
-    - Vector1_78DBE1CF: 5.23
-    - Vector1_A2CAC2E: 0.05
-    - Vector1_FD99FD1A: 0.2
+    - Vector1_2F0E7CF5: 1
     - _AORemapMax: 1
     - _AORemapMin: 0
     - _ATDistance: 1
@@ -227,8 +213,6 @@ Material:
     - _ZTestModeDistortion: 8
     - _ZWrite: 1
     m_Colors:
-    - Color_37B07B80: {r: 0.3726415, g: 0.82448906, b: 1, a: 1}
-    - Color_E85AF653: {r: 0, g: 0.4726776, b: 0.5, a: 1}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
