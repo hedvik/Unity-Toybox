@@ -46,14 +46,13 @@ public class BootstrapperLargeEntityCount
     {
         // ComponentType.Create<> is slightly more efficient than using typeof()
         // em.CreateArchetype(typeof(foo), typeof(bar), typeof(cake), typeof(cookie));
-        // Note: A TransformMatrix is MANDATORY to actually render things properly
         var position = ComponentType.Create<Position>();
         var rotation = ComponentType.Create<Rotation>();
-        var transformMatrix = ComponentType.Create<TransformMatrix>();
+        var scale = ComponentType.Create<Scale>();
         var floater = ComponentType.Create<FloaterComponent>();
         var rotator = ComponentType.Create<RotatorComponent>();
 
-        floatyCubeArchetype = entityManager.CreateArchetype(position, transformMatrix, rotation, floater, rotator);
+        floatyCubeArchetype = entityManager.CreateArchetype(position, rotation, floater, rotator, scale);
     }
 
     private static void CreateEntities(EntityManager entityManager)
@@ -91,19 +90,20 @@ public class BootstrapperLargeEntityCount
         for (int i = 0; i < count; i++)
         {
             var floaterComponent = new FloaterComponent();
-            floaterComponent.floatSpeed = Random.Range(1.0f, 5.0f);
+            floaterComponent.floatSpeed = UnityEngine.Random.Range(1.0f, 5.0f);
             floaterComponent.floatDirection = new float3(
-                floatDirection.x == 0 ? Random.Range(-1.0f, 1.0f) : floatDirection.x,
-                floatDirection.y == 0 ? Random.Range(-1.0f, 1.0f) : floatDirection.y,
-                floatDirection.z == 0 ? Random.Range(-1.0f, 1.0f) : floatDirection.z
+                floatDirection.x == 0 ? UnityEngine.Random.Range(-1.0f, 1.0f) : floatDirection.x,
+                floatDirection.y == 0 ? UnityEngine.Random.Range(-1.0f, 1.0f) : floatDirection.y,
+                floatDirection.z == 0 ? UnityEngine.Random.Range(-1.0f, 1.0f) : floatDirection.z
                 );
 
             var rotatorComponent = new RotatorComponent();
             rotatorComponent.rotationSpeed = floaterComponent.floatSpeed;
-            rotatorComponent.direction = new float3(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
+            rotatorComponent.direction = new float3(UnityEngine.Random.Range(-1.0f, 1.0f), UnityEngine.Random.Range(-1.0f, 1.0f), UnityEngine.Random.Range(-1.0f, 1.0f));
 
             entityManager.SetComponentData(entities[i], new Position() { Value = startPos });
             entityManager.SetComponentData(entities[i], new Rotation() { Value = quaternion.identity });
+            entityManager.SetComponentData(entities[i], new Scale() { Value = new float3(1f, 1f, 1f) });
             entityManager.SetComponentData(entities[i], rotatorComponent);
             entityManager.SetComponentData(entities[i], floaterComponent);
 

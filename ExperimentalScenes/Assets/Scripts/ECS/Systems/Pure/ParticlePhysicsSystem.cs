@@ -35,7 +35,7 @@ public class ParticlePhysicsSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var physicsJob = new PhysicsJob() { fdt = Time.fixedDeltaTime };
-        var handle = physicsJob.Schedule(this, 1, inputDeps);
+        var handle = physicsJob.Schedule(this, inputDeps);
         return handle;
     }
 }

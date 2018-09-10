@@ -35,8 +35,7 @@ public class ParticleAttractorSystem : JobComponentSystem
                 var powRadius = math.pow(particleAttractors[i].radius, 2);
                 var attractionVector = math.normalize(particleAttractorPositions[i].Value - position.Value) * particleAttractors[i].attractorStrength;
 
-                // Math.select should be faster than branching with a if statement
-                particle.force += math.select(new float3(0, 0, 0), attractionVector, math.lessThan(calc, powRadius));
+                particle.force += math.select(new float3(0, 0, 0), attractionVector, calc < powRadius ? true : false);
             }
         }
     }
@@ -50,7 +49,7 @@ public class ParticleAttractorSystem : JobComponentSystem
             particleAttractors = attractors.particleAttractors,
             particleAttractorPositions = attractors.particleAttractorPositions
         };
-        var handle = attractorJob.Schedule(this, 1, inputDeps);
+        var handle = attractorJob.Schedule(this, inputDeps);
         return handle;
     }
 }

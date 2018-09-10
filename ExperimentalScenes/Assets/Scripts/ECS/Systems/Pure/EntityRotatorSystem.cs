@@ -70,6 +70,6 @@ public class EntityRotatorSystem : JobComponentSystem
 
         // IJobProcessComponentData example
         var rotatorJob = new RotatorJob() { dt = Time.deltaTime };
-        return rotatorJob.Schedule(this, 64, inputDeps);
+        return rotatorJob.Schedule(this, inputDeps);
     }
 }

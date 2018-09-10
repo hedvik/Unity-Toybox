@@ -38,13 +38,13 @@ public class BootstrapperParticles
     {
         var position = ComponentType.Create<Position>();
         var rotation = ComponentType.Create<Rotation>();
-        var transformMatrix = ComponentType.Create<TransformMatrix>();
+        var scale = ComponentType.Create<Scale>();
         var rotator = ComponentType.Create<RotatorComponent>();
         var particle = ComponentType.Create<Particle>();
         var particleEmitter = ComponentType.Create<ParticleEmitter>();
 
-        particleArchetype = entityManager.CreateArchetype(position, transformMatrix, rotation, particle, rotator);
-        particleEmitterArchetype = entityManager.CreateArchetype(position, transformMatrix, particleEmitter);
+        particleArchetype = entityManager.CreateArchetype(position, rotation, scale, particle, rotator);
+        particleEmitterArchetype = entityManager.CreateArchetype(position, particleEmitter);
     }
 
     private static void CreateEntities(EntityManager entityManager)

@@ -47,15 +47,13 @@ public class BootstrapperImageTo3D
     {
         // ComponentType.Create<> is slightly more efficient than using typeof()
         // em.CreateArchetype(typeof(foo), typeof(bar), typeof(cake), typeof(cookie));
-        // Note: A TransformMatrix is MANDATORY to actually render things properly
         var position = ComponentType.Create<Position>();
         var rotation = ComponentType.Create<Rotation>();
-        var transformMatrix = ComponentType.Create<TransformMatrix>();
         var initTag = ComponentType.Create<InitializePositionTag>();
         //var cubeFloater = ComponentType.Create<CubeFloaterComponent>();
         //var cubeRotator = ComponentType.Create<CubeRotatorComponent>();
 
-        pixelCubeArchetype = entityManager.CreateArchetype(position, transformMatrix, rotation, initTag);
+        pixelCubeArchetype = entityManager.CreateArchetype(position, rotation, initTag);
     }
 
     private static void CreateEntities(EntityManager entityManager)

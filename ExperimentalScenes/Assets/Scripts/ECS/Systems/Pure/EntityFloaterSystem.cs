@@ -58,6 +58,6 @@ public class EntityFloaterSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         var floaterJob = new EntityFloaterJob() { dt = Time.deltaTime };
-        return floaterJob.Schedule(this, 64, inputDeps);
+        return floaterJob.Schedule(this, inputDeps);
     }
 }
