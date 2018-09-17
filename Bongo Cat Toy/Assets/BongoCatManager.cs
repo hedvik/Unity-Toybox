@@ -4,38 +4,26 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class BongoCatManager : MonoBehaviour {
-    public Sprite defaultImage;
-    public List<Sprite> leftImages = new List<Sprite>();
-    public List<Sprite> rightImages = new List<Sprite>();
-    public List<Sprite> bothImages = new List<Sprite>();
-    public List<Sprite> upImages = new List<Sprite>();
-    public List<Sprite> clapImages = new List<Sprite>();
+    [System.Serializable]
+    public class ButtonAction
+    {
+        public KeyCode actionKey;
+        public List<Sprite> actionFrames = new List<Sprite>();
+        public AudioClip actionSFX;
 
+        // Might eventually move to having these being runtime generated
+        public AudioSource sfxPlayer;
+    };
+
+    public Sprite defaultImage;
     public AudioClip playbackSong;
-    public AudioClip meowClip;
-    public AudioClip clapClip;
     public Image imageContainer;
 
-    private List<List<Sprite>> actionImages = new List<List<Sprite>>();
-    private List<KeyCode> allowedKeys = new List<KeyCode>();
-    private AudioSource sfxPlayer;
+    public List<ButtonAction> actions = new List<ButtonAction>();
 
     private void Start()
     {
         GetComponent<AudioSource>().PlayOneShot(playbackSong);
-        actionImages.Add(leftImages);
-        actionImages.Add(rightImages);
-        actionImages.Add(bothImages);
-        actionImages.Add(upImages);
-        actionImages.Add(clapImages);
-
-        allowedKeys.Add(KeyCode.LeftArrow);
-        allowedKeys.Add(KeyCode.RightArrow);
-        allowedKeys.Add(KeyCode.DownArrow);
-        allowedKeys.Add(KeyCode.UpArrow);
-        allowedKeys.Add(KeyCode.Space);
-
-        sfxPlayer = GameObject.Find("SFXPlayer").GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -46,30 +34,21 @@ public class BongoCatManager : MonoBehaviour {
     void CheckKeyDown()
     {
         int numKeysUp = 0;
-        for(int i = 0; i < allowedKeys.Count; i++)
+        for(int i = 0; i < actions.Count; i++)
         {
-            if(Input.GetKeyDown(allowedKeys[i]))
+            if(Input.GetKeyDown(actions[i].actionKey))
             {
-                imageContainer.sprite = actionImages[i][Random.Range(0, actionImages[i].Count)];
-
-                // TODO: this should just check if the action has a corresponding sound and then play it
-                if(allowedKeys[i] == KeyCode.UpArrow)
-                {
-                    sfxPlayer.PlayOneShot(meowClip);
-                } 
-                else if (allowedKeys[i] == KeyCode.Space)
-                {
-                    sfxPlayer.PlayOneShot(clapClip);
-                }
+                imageContainer.sprite = actions[i].actionFrames[Random.Range(0, actions[i].actionFrames.Count)];
+                actions[i]?.sfxPlayer.PlayOneShot(actions[i]?.actionSFX);
             }
 
-            if (!Input.GetKey(allowedKeys[i]))
+            if (!Input.GetKey(actions[i].actionKey))
             {
                 numKeysUp++;
             }
         }
 
-        if(numKeysUp == allowedKeys.Count)
+        if(numKeysUp == actions.Count)
         {
             imageContainer.sprite = defaultImage;
         }

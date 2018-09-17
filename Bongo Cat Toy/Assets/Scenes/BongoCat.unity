@@ -113,6 +113,90 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &386739441
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 386739442}
+  - component: {fileID: 386739444}
+  - component: {fileID: 386739443}
+  - component: {fileID: 386739445}
+  m_Layer: 5
+  m_Name: Background
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &386739442
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 386739441}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1176093827}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -1, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &386739443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 386739441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_Sprite: {fileID: 21300000, guid: 959809a2ce06182498819c373a71536a, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+--- !u!222 &386739444
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 386739441}
+  m_CullTransparentMesh: 0
+--- !u!114 &386739445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 386739441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec200f305ea726f42b2bf529f3aa84bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gradientSprite: {fileID: 21300000, guid: 971aa6013f69eef4f89a11b12f5de9d2, type: 3}
+  speed: 0.025
+  sampleOffsetY: 1024
 --- !u!1 &509372321
 GameObject:
   m_ObjectHideFlags: 0
@@ -123,7 +207,7 @@ GameObject:
   - component: {fileID: 509372323}
   - component: {fileID: 509372322}
   m_Layer: 0
-  m_Name: SFXPlayer
+  m_Name: SFXPlayerUp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -450,23 +534,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7d0d4ea35000ef469c9f8470b6840df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultImage: {fileID: 21300000, guid: 71fc5d9846921f544a721cb8e3a2b90a, type: 3}
-  leftImages:
-  - {fileID: 21300000, guid: 490d98e08bfb0ba488c7db886e9c4127, type: 3}
-  - {fileID: 21300000, guid: 56a58458780ccc248bb7c93c351cf7c3, type: 3}
-  rightImages:
-  - {fileID: 21300000, guid: 94529b7e8a9a3e04ebec27e7d532f6f8, type: 3}
-  - {fileID: 21300000, guid: 097954a4f675a064090204c8697dcebc, type: 3}
-  bothImages:
-  - {fileID: 21300000, guid: df68fa6f3dfe8a04389d5ba029254ef3, type: 3}
-  upImages:
-  - {fileID: 21300000, guid: dc5e60d7086346c49b909cf180c2d9e8, type: 3}
-  clapImages:
-  - {fileID: 21300000, guid: 5e9a4d2ba84b07646bc21e36c5472556, type: 3}
+  defaultImage: {fileID: 21300000, guid: 1669dbebf7d2e8b4ab8138a9ae5b0386, type: 3}
   playbackSong: {fileID: 8300000, guid: 76cd289d5c77f9443bc5c04c7c92a9a8, type: 3}
-  meowClip: {fileID: 8300000, guid: 6c51c123843aae847aa0d335e4ea160c, type: 3}
-  clapClip: {fileID: 8300000, guid: 9c590d75e120f634d8ac4e38a9a693d2, type: 3}
   imageContainer: {fileID: 1306428073}
+  actions:
+  - actionKey: 276
+    actionFrames:
+    - {fileID: 21300000, guid: e8c60d0f9bfc0e44fbf5c2d6a2552ef8, type: 3}
+    - {fileID: 21300000, guid: bf1e16df44ff9c54a92988ade2b80ec3, type: 3}
+    actionSFX: {fileID: 0}
+    sfxPlayer: {fileID: 0}
+  - actionKey: 275
+    actionFrames:
+    - {fileID: 21300000, guid: d6ac18fefb2ce7d49b629ebb61e0cd7b, type: 3}
+    - {fileID: 21300000, guid: ec74ca5e250494a4a8f7de58f71d79c2, type: 3}
+    actionSFX: {fileID: 0}
+    sfxPlayer: {fileID: 0}
+  - actionKey: 274
+    actionFrames:
+    - {fileID: 21300000, guid: 6a9fd054dfcd5ab46a1dcda8d4bd0c63, type: 3}
+    actionSFX: {fileID: 0}
+    sfxPlayer: {fileID: 0}
+  - actionKey: 273
+    actionFrames:
+    - {fileID: 21300000, guid: dc5e60d7086346c49b909cf180c2d9e8, type: 3}
+    actionSFX: {fileID: 8300000, guid: 6c51c123843aae847aa0d335e4ea160c, type: 3}
+    sfxPlayer: {fileID: 509372322}
+  - actionKey: 32
+    actionFrames:
+    - {fileID: 21300000, guid: 5e9a4d2ba84b07646bc21e36c5472556, type: 3}
+    actionSFX: {fileID: 8300000, guid: 9c590d75e120f634d8ac4e38a9a693d2, type: 3}
+    sfxPlayer: {fileID: 509372322}
 --- !u!1 &697950904
 GameObject:
   m_ObjectHideFlags: 0
@@ -614,6 +712,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
+  - {fileID: 386739442}
   - {fileID: 1306428072}
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -651,7 +750,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1176093827}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -677,7 +776,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 71fc5d9846921f544a721cb8e3a2b90a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a165be41e5ea66d489cd0ae310627216, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
