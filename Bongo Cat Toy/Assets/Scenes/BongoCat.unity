@@ -207,7 +207,7 @@ GameObject:
   - component: {fileID: 509372323}
   - component: {fileID: 509372322}
   m_Layer: 0
-  m_Name: SFXPlayerUp
+  m_Name: SFXPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -426,7 +426,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.5
+  m_Volume: 0.25
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -534,7 +534,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7d0d4ea35000ef469c9f8470b6840df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  defaultImage: {fileID: 21300000, guid: 1669dbebf7d2e8b4ab8138a9ae5b0386, type: 3}
+  defaultImage: {fileID: 21300000, guid: a165be41e5ea66d489cd0ae310627216, type: 3}
   playbackSong: {fileID: 8300000, guid: 76cd289d5c77f9443bc5c04c7c92a9a8, type: 3}
   imageContainer: {fileID: 1306428073}
   actions:
@@ -542,19 +542,19 @@ MonoBehaviour:
     actionFrames:
     - {fileID: 21300000, guid: e8c60d0f9bfc0e44fbf5c2d6a2552ef8, type: 3}
     - {fileID: 21300000, guid: bf1e16df44ff9c54a92988ade2b80ec3, type: 3}
-    actionSFX: {fileID: 0}
-    sfxPlayer: {fileID: 0}
+    actionSFX: {fileID: 8300000, guid: 4f5cc5b95c7a09747854e2a36889205d, type: 3}
+    sfxPlayer: {fileID: 509372322}
   - actionKey: 275
     actionFrames:
     - {fileID: 21300000, guid: d6ac18fefb2ce7d49b629ebb61e0cd7b, type: 3}
     - {fileID: 21300000, guid: ec74ca5e250494a4a8f7de58f71d79c2, type: 3}
-    actionSFX: {fileID: 0}
-    sfxPlayer: {fileID: 0}
+    actionSFX: {fileID: 8300000, guid: ff5ccdc2282080d46bff73fe0670f64a, type: 3}
+    sfxPlayer: {fileID: 509372322}
   - actionKey: 274
     actionFrames:
     - {fileID: 21300000, guid: 6a9fd054dfcd5ab46a1dcda8d4bd0c63, type: 3}
-    actionSFX: {fileID: 0}
-    sfxPlayer: {fileID: 0}
+    actionSFX: {fileID: 8300000, guid: ba8ad437382e90a46984ff7baae64ded, type: 3}
+    sfxPlayer: {fileID: 509372322}
   - actionKey: 273
     actionFrames:
     - {fileID: 21300000, guid: dc5e60d7086346c49b909cf180c2d9e8, type: 3}
