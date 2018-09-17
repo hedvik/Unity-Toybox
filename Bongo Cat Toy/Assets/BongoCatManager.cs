@@ -21,14 +21,20 @@ public class BongoCatManager : MonoBehaviour {
 
     public List<ButtonAction> actions = new List<ButtonAction>();
 
+    private AudioSource audioSource;
+
     private void Start()
     {
-        GetComponent<AudioSource>().PlayOneShot(playbackSong);
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
     {
         CheckKeyDown();
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+            audioSource.PlayOneShot(playbackSong);
+        }
     }
 
     void CheckKeyDown()
